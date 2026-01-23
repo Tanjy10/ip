@@ -5,6 +5,6 @@ public class Tanjy {
                 + "What can I do for you?\n"
                 + "____________________________________________________________\n"
                 + "Bye. Hope to see you again soon!\n";
-        System.out.println("Hello from\n" + logo);
+        System.out.println(logo);
     }
 }
