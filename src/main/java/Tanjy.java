@@ -19,10 +19,10 @@ public class Tanjy {
 
         // Print intro, start scanner to scan for inputs
         System.out.println(intro);
+        Scanner scanner = new Scanner(System.in);
 
         // Create while loop to continuously take inputs
         while (true) {
-            Scanner scanner = new Scanner(System.in);
             String text = scanner.nextLine();
             String[] parts = text.split("\\s+", 2);
             String command = parts[0];
@@ -67,7 +67,7 @@ public class Tanjy {
 
                 // When command == to-do, it's a to-do task
                 case "todo":
-                    Todo todo = new Todo(remainder, -1);
+                    Todo todo = new Todo(remainder.trim(), -1);
                     System.out.print(border + "Got it. I've added this task:\n");
                     System.out.print(todo.toString() + "\n");
                     list.add(todo);
@@ -77,7 +77,7 @@ public class Tanjy {
                 // When command == deadline, it's a deadline task
                 case "deadline":
                     String[] details = remainder.split("/by", 2);
-                    Deadline deadline = new Deadline(details[0], -1, details[1]);
+                    Deadline deadline = new Deadline(details[0].trim(), -1, details[1]);
                     System.out.print(border + "Got it. I've added this task:\n");
                     System.out.print(deadline.toString() + "\n");
                     list.add(deadline);
@@ -88,7 +88,7 @@ public class Tanjy {
                 case "event":
                     details = remainder.split("/from", 2);
                     String[] timeRange = details[1].split("/to", 2);
-                    Event event = new Event(details[0], -1, timeRange[0], timeRange[1]);
+                    Event event = new Event(details[0].trim(), -1, timeRange[0], timeRange[1]);
                     System.out.print(border + "Got it. I've added this task:\n");
                     System.out.print(event.toString() + "\n");
                     list.add(event);
