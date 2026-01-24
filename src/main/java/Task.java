@@ -1,11 +1,9 @@
 public class Task {
-    private int index;
     private String name;
     private int status;
     protected String description;
 
-    public Task(int index, String name, int status) {
-        this.index = index;
+    public Task(String name, int status) {
         this.name = name;
         this.status = status;
     }
@@ -16,9 +14,9 @@ public class Task {
 
     public String toString() {
         if (status == 1) {
-            description = (index + 1) + "." + "[X] " + name + "\n";
+            description = "[X] " + name + "\n";
         } else {
-            description = (index + 1) + "." + "[ ] " + name + "\n";
+            description = "[ ] " + name + "\n";
         }
         return description;
     }

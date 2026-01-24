@@ -39,6 +39,7 @@ public class Tanjy {
                     System.out.print(border +
                             "Here are the tasks in your list:\n");
                     for (int i = 0; i < list.size(); i++) {
+                        System.out.print( (i + 1) + ".");
                         System.out.print(list.get(i).toString());
                     }
                     System.out.print(border);
@@ -65,7 +66,7 @@ public class Tanjy {
                 // When not a command, it is a task to be added
                 default:
                     System.out.print(border + "added: " + text + "\n" + border);
-                    curr = new Task(list.size(), text, -1);
+                    curr = new Task(text, -1);
                     list.add(curr);
                     break;
             }

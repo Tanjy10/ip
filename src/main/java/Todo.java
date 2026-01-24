@@ -2,8 +2,8 @@ public class Todo extends Task{
 
     protected String by;
 
-    public Todo(int index, String name, int status, String by) {
-        super(index, name, status);
+    public Todo(String name, int status, String by) {
+        super(name, status);
         this.by = by;
     }
 
