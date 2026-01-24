@@ -121,6 +121,23 @@ public class Tanjy {
                         System.out.print("Now you have " + list.size() + " task(s) in your list\n" + border);
                         break;
 
+                    // When command == Delete, it's to delete a task in the list
+                    case "delete":
+                        if (remainder.isBlank())
+                            throw new TanjyException("You did not indicate which task to delete!");
+                        if (!parts[1].matches("\\d+"))
+                            throw new TanjyException("That's not a number :((");
+                        inputNumber = Integer.parseInt(parts[1]);
+                        if (inputNumber <= 0 || inputNumber > list.size())
+                            throw new TanjyException("Invalid index! Enter another number, or add a Task!");
+                        index = inputNumber - 1;
+                        System.out.print(border + "Noted. I've removed this Task:\n");
+                        Task deleted = list.get(index);
+                        System.out.print(deleted.toString() + "\n");
+                        list.remove(deleted);
+                        System.out.print("Now you have " + list.size() + " task(s) in your list\n" + border);
+                        break;
+
                     // When not a command, it is a task to be added
                     default:
                         throw new TanjyException("Huh? No such command. Enter something else!");
