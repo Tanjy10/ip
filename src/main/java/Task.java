@@ -2,7 +2,7 @@ public class Task {
     private int index;
     private String name;
     private int status;
-    private String message;
+    protected String description;
 
     public Task(int index, String name, int status) {
         this.index = index;
@@ -14,16 +14,20 @@ public class Task {
         return this.name;
     }
 
-    public String getMessage() {
+    public String toString() {
         if (status == 1) {
-            message = (index + 1) + "." + "[X] " + name + "\n";
+            description = (index + 1) + "." + "[X] " + name + "\n";
         } else {
-            message = (index + 1) + "." + "[ ] " + name + "\n";
+            description = (index + 1) + "." + "[ ] " + name + "\n";
         }
-        return message;
+        return description;
     }
 
-    public void changeStatus() {
-        this.status = status * -1;
+    public void mark() {
+        this.status = 1;
+    }
+
+    public void unmark() {
+        this.status = -1;
     }
 }

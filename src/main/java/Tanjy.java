@@ -17,80 +17,58 @@ public class Tanjy {
                 + "Bye. Hope to see you again soon!\n"
                 + border;
 
-        //Introduce commandList to check for commands
-        ArrayList<String> commandList = new ArrayList<>();
-        commandList.add("list");
-        commandList.add("mark");
-        commandList.add("unmark");
-
         // Print intro, start scanner to scan for inputs
         System.out.println(intro);
-        Scanner scanner = new Scanner(System.in);
-        String text = scanner.nextLine();
-        String[] parts = text.trim().split("\\s+");
 
         // Create while loop to continuously take inputs
-        while (!Objects.equals(text, "bye")) {
-            // Conditional to print entire list
-            if (Objects.equals(text, "list")) {
-                System.out.print(border +
-                        "Here are the tasks in your list:\n");
-                for (int i = 0; i < list.size(); i++) {
-                    System.out.print(list.get(i).getMessage());
-                }
-                System.out.print(border);
-                text = scanner.nextLine();
-                parts = text.trim().split("\\s+");
-            } else
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            String text = scanner.nextLine();
+            String[] parts = text.trim().split("\\s+");
+            String command = parts[0];
 
-            // Conditional to mark Task as done
-            if (Objects.equals(parts[0], "mark")) {
-                int index = Integer.parseInt(parts[1]) - 1;
-                // Conditional to check that number given is allowed:
-                if (index >= list.size() || index < 0) {
+            switch (command) {
+                // When command == bye, print outro and close scanner
+                case "bye":
+                    System.out.print(outro);
+                    scanner.close();
+                    return;
+
+                // When command == list, print entire list
+                case "list":
                     System.out.print(border +
-                            "Index is out of bounds! Enter a valid number. \n"
-                    + border);
-                } else {
-                    // Mark task as done
+                            "Here are the tasks in your list:\n");
+                    for (int i = 0; i < list.size(); i++) {
+                        System.out.print(list.get(i).toString());
+                    }
+                    System.out.print(border);
+                    break;
+
+                // When command == mark, mark task as done
+                case "mark":
+                    int index = Integer.parseInt(parts[1]) - 1;
                     System.out.print(border + "Nice! I've marked this task as done:\n"
                             + "[X] " + list.get(index).getName() + "\n" + border);
                     Task curr = list.get(index);
-                    curr.changeStatus();
-                }
-                text = scanner.nextLine();
-                parts = text.trim().split("\\s+");
-            } else
+                    curr.mark();
+                    break;
 
-            // Conditional to mark Task as undone
-            if (Objects.equals(parts[0], "unmark")) {
-                int index = Integer.parseInt(parts[1]) - 1;
-                // Conditional to check that number given is allowed:
-                if (index >= list.size() || index < 0) {
-                    System.out.print(border +
-                            "Index is out of bounds! Enter a valid number. \n"
-                            + border);
-                } else {
-                    // Mark task as done
+                // When command == unmark, unmark as done
+                case "unmark":
+                    index = Integer.parseInt(parts[1]) - 1;
                     System.out.print(border + "OK, I've marked this task as not done yet:\n"
-                            + "[ ]" + list.get(index).getName() + "\n" + border);
-                    Task curr = list.get(index);
-                    curr.changeStatus();
-                }
-                text = scanner.nextLine();
-                parts = text.trim().split("\\s+");
-            } else
+                            + "[ ] " + list.get(index).getName() + "\n" + border);
+                    curr = list.get(index);
+                    curr.unmark();
+                    break;
 
-            // If inputs are not as above, it is a Task that should be added to the list
-                {
-                System.out.print(border + "added: " + text + "\n" + border);
-                Task curr = new Task(list.size(), text, -1);
-                list.add(curr);
-                text = scanner.nextLine();
-                parts = text.trim().split("\\s+");
+                // When not a command, it is a task to be added
+                default:
+                    System.out.print(border + "added: " + text + "\n" + border);
+                    curr = new Task(list.size(), text, -1);
+                    list.add(curr);
+                    break;
             }
         }
-
-        System.out.print(outro);
     }
 }
