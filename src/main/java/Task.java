@@ -14,9 +14,9 @@ public class Task {
 
     public String toString() {
         if (status == 1) {
-            description = "[X] " + name + "\n";
+            description = "[X] " + name;
         } else {
-            description = "[ ] " + name + "\n";
+            description = "[ ] " + name;
         }
         return description;
     }
