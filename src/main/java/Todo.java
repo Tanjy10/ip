@@ -3,6 +3,7 @@ public class Todo extends Task{
 
     public Todo(String name, int status) {
         super(name, status);
+        setTaskType("T");
     }
 
     @Override

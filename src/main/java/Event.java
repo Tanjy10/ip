@@ -7,6 +7,12 @@ public class Event extends Task{
         super(name, status);
         this.from = from;
         this.to = to;
+        setTaskType("E");
+    }
+
+    @Override
+    public String getName() {
+        return super.getName() + "|" + this.from + "|" + this.to;
     }
 
     @Override
