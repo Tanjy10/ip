@@ -1,5 +1,10 @@
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 import java.util.Scanner;
 
 public class Tanjy {
@@ -17,8 +22,39 @@ public class Tanjy {
                 + "Bye. Hope to see you again soon!\n"
                 + border;
 
-        // Print intro, start scanner to scan for inputs
+        // Print intro
         System.out.println(intro);
+
+        // Try to search for file for saved list
+        Path filePath = Paths.get("data", "Tanjy.txt");
+        List<String> savedList= new ArrayList<>();
+        try {
+            Files.createDirectories(filePath.getParent());
+
+            // If file exists, load it. Else, create a new file.
+            if (Files.exists(filePath)) {
+                savedList = Files.readAllLines(filePath);
+                System.out.print(border +
+                        "Your saved list has been found and loaded! :D\n"
+                        + border);
+            } else {
+                System.out.print(border +
+                        "Looks like this is your first time. Let me create a list for you!\n"
+                        + border);
+                Files.createFile(filePath);
+            }
+        } catch (IOException e) {
+            System.out.print(border +
+                    "Something went wrong... idk man :<\n"
+                    + border);
+        }
+
+        // Parse the lines in the file into actual tasks
+        for (String line : savedList) {
+            Task t = lineToTaskParser(line);
+            list.add(t);
+        }
+
         Scanner scanner = new Scanner(System.in);
 
         // Create while loop to continuously take inputs
@@ -83,7 +119,7 @@ public class Tanjy {
                     case "todo":
                         if (remainder.isBlank())
                             throw new TanjyException("Todo description cannot be empty.");
-                        Todo todo = new Todo(remainder.trim(), -1);
+                        Todo todo = new Todo(remainder.trim(), 0);
                         System.out.print(border + "Got it. I've added this task:\n");
                         System.out.print(todo.toString() + "\n");
                         list.add(todo);
@@ -97,7 +133,7 @@ public class Tanjy {
                         String[] details = remainder.split("/by", 2);
                         if (details.length == 1)
                             throw new TanjyException("You need to set a deadline by adding '/by' after the task!");
-                        Deadline deadline = new Deadline(details[0].trim(), -1, details[1].trim());
+                        Deadline deadline = new Deadline(details[0].trim(), 0, details[1].trim());
                         System.out.print(border + "Got it. I've added this task:\n");
                         System.out.print(deadline.toString() + "\n");
                         list.add(deadline);
@@ -114,7 +150,7 @@ public class Tanjy {
                         String[] timeRange = details[1].split("/to", 2);
                         if (timeRange.length == 1)
                             throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
-                        Event event = new Event(details[0].trim(), -1, timeRange[0].trim(), timeRange[1].trim());
+                        Event event = new Event(details[0].trim(), 0, timeRange[0].trim(), timeRange[1].trim());
                         System.out.print(border + "Got it. I've added this task:\n");
                         System.out.print(event.toString() + "\n");
                         list.add(event);
@@ -138,6 +174,31 @@ public class Tanjy {
                         System.out.print("Now you have " + list.size() + " task(s) in your list\n" + border);
                         break;
 
+                    case "save":
+                        try {
+                            Paths.get("data", "tanjy.txt");
+                            Files.createDirectories(filePath.getParent());
+
+                            List<String> linesToSave = new ArrayList<>();
+                            for (Task t : list) {
+                                String line = t.getTaskType() + "|" + t.getStatus() + "|" + t.getName();
+                                linesToSave.add(line);
+                            }
+                            Files.write(
+                                    filePath,
+                                    linesToSave,
+                                    StandardOpenOption.CREATE,
+                                    StandardOpenOption.TRUNCATE_EXISTING
+                            );
+                            System.out.print(border +
+                                    "Your list has been saved successfully!\n"
+                                    + border);
+
+                        } catch (IOException e) {
+                            System.out.print("Something went wrong... Oops :<");
+                        }
+                        break;
+
                     // When not a command, it is a task to be added
                     default:
                         throw new TanjyException("Huh? No such command. Enter something else!");
@@ -145,6 +206,34 @@ public class Tanjy {
             } catch (TanjyException e) {
                 System.out.print(border + e.getMessage() + "\n" + border);
             }
+        }
+    }
+
+    public static Task lineToTaskParser(String s) {
+        String[] lineParts = s.split("\\|", 2);
+        String typeOfTask = lineParts[0].trim();
+        String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
+
+        try {
+            switch (typeOfTask) {
+                case "T":
+                    String[] todoParts = taskContents.split("\\|", 2);
+                    int taskStatus = Integer.parseInt(todoParts[0].trim());
+                    return new Todo(todoParts[1].trim(), taskStatus);
+                case "D":
+                    String[] deadlineParts = taskContents.split("\\|", 3);
+                    taskStatus = Integer.parseInt(deadlineParts[0].trim());
+                    return new Deadline(deadlineParts[1].trim(), taskStatus, deadlineParts[2].trim());
+                case "E":
+                    String[] eventParts = taskContents.split("\\|", 4);
+                    taskStatus = Integer.parseInt(eventParts[0].trim());
+                    return new Event(eventParts[1].trim(), taskStatus,
+                            eventParts[2].trim(), eventParts[3].trim());
+                default:
+                    return null;
+            }
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
         }
     }
 }

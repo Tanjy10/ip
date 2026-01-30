@@ -1,4 +1,5 @@
 public class Task {
+    private String taskType;
     private String name;
     private int status;
     protected String description;
@@ -6,6 +7,18 @@ public class Task {
     public Task(String name, int status) {
         this.name = name;
         this.status = status;
+    }
+
+    public String getTaskType(){
+        return taskType;
+    }
+
+    public void setTaskType(String s){
+        taskType = s;
+    }
+
+    public int getStatus() {
+        return this.status;
     }
 
     public String getName() {
@@ -26,6 +39,6 @@ public class Task {
     }
 
     public void unmark() {
-        this.status = -1;
+        this.status = 0;
     }
 }
