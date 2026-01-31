@@ -10,6 +10,13 @@ public class Deadline extends Task {
     private static final DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("MMM dd yyyy");
     private static final DateTimeFormatter dateAndTime = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
 
+    /**
+     * Constructs a deadline task with the task description, task status and date to finish the task by.
+     *
+     * @param name The deadline task description.
+     * @param status The deadline task status.
+     * @param by The date to finish the deadline task by.
+     */
     public Deadline(String name, int status, LocalDateTime by) {
         super(name, status);
         this.by = by;

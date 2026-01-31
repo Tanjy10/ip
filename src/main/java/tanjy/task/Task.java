@@ -6,6 +6,12 @@ public class Task {
     private int status;
     protected String description;
 
+    /**
+     * Constructs a task with the task description and task status.
+     *
+     * @param name The task description.
+     * @param status The task status.
+     */
     public Task(String name, int status) {
         this.name = name;
         this.status = status;
@@ -37,10 +43,16 @@ public class Task {
         return description;
     }
 
+    /**
+     *  Changes the task's status to done.
+     */
     public void mark() {
         this.status = 1;
     }
 
+    /**
+     * Changes the task's status to not done.
+     */
     public void unmark() {
         this.status = 0;
     }
