@@ -1,8 +1,14 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class Deadline extends Task {
 
-    protected String by;
+    protected LocalDateTime by;
 
-    public Deadline(String name, int status, String by) {
+    private static final DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("MMM dd yyyy");
+    private static final DateTimeFormatter dateAndTime = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
+
+    public Deadline(String name, int status, LocalDateTime by) {
         super(name, status);
         this.by = by;
         setTaskType("D");
@@ -10,11 +16,18 @@ public class Deadline extends Task {
 
     @Override
     public String getName() {
-        return super.getName() + "|" + this.by;
+        return super.getName() + "|" + by.toString();
     }
 
     @Override
     public String toString() {
-        return "[D]" + super.toString() + " (by: " + by + ")";
+        boolean hasTime = !(by.getHour() == 0 && by.getMinute() == 0);
+        String date;
+        if (!hasTime) {
+            date = by.format(dateAndTime);
+        } else {
+            date = by.format(dateOnly);
+        }
+        return "[D]" + super.toString() + " (by: " + date + ")";
     }
 }

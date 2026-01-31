@@ -1,3 +1,7 @@
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -8,6 +12,58 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Tanjy {
+    private static final DateTimeFormatter IN_DATE =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter IN_DATETIME =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+
+    private static LocalDateTime parseDateTime(String s) throws TanjyException {
+        String input = s.trim();
+        try {
+            return LocalDateTime.parse(input, IN_DATETIME);
+        } catch (DateTimeParseException ignored) { }
+
+        try {
+            return LocalDate.parse(input, IN_DATE).atStartOfDay();
+        } catch (DateTimeParseException ignored) { }
+
+        try {
+            return LocalDateTime.parse(input);
+        } catch (DateTimeParseException ignored) { }
+
+        throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
+    }
+
+    public static Task lineToTaskParser(String s) {
+        String[] lineParts = s.split("\\|", 2);
+        String typeOfTask = lineParts[0].trim();
+        String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
+
+        try {
+            switch (typeOfTask) {
+                case "T":
+                    String[] todoParts = taskContents.split("\\|", 2);
+                    int taskStatus = Integer.parseInt(todoParts[0].trim());
+                    return new Todo(todoParts[1].trim(), taskStatus);
+                case "D":
+                    String[] deadlineParts = taskContents.split("\\|", 3);
+                    taskStatus = Integer.parseInt(deadlineParts[0].trim());
+                    LocalDateTime by = parseDateTime(deadlineParts[2].trim());
+                    return new Deadline(deadlineParts[1].trim(), taskStatus, by);
+                case "E":
+                    String[] eventParts = taskContents.split("\\|", 4);
+                    taskStatus = Integer.parseInt(eventParts[0].trim());
+                    LocalDateTime from = parseDateTime(eventParts[2].trim());
+                    LocalDateTime to = parseDateTime(eventParts[3].trim());
+                    return new Event(eventParts[1].trim(), taskStatus, from, to);
+                default:
+                    return null;
+            }
+        } catch (RuntimeException | TanjyException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) {
         // Introducing Task list, intro and outro for bot
         ArrayList<Task> list = new ArrayList<>();
@@ -133,7 +189,8 @@ public class Tanjy {
                         String[] details = remainder.split("/by", 2);
                         if (details.length == 1)
                             throw new TanjyException("You need to set a deadline by adding '/by' after the task!");
-                        Deadline deadline = new Deadline(details[0].trim(), 0, details[1].trim());
+                        LocalDateTime by = parseDateTime(details[1].trim());
+                        Deadline deadline = new Deadline(details[0].trim(), 0, by);
                         System.out.print(border + "Got it. I've added this task:\n");
                         System.out.print(deadline.toString() + "\n");
                         list.add(deadline);
@@ -150,7 +207,9 @@ public class Tanjy {
                         String[] timeRange = details[1].split("/to", 2);
                         if (timeRange.length == 1)
                             throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
-                        Event event = new Event(details[0].trim(), 0, timeRange[0].trim(), timeRange[1].trim());
+                        LocalDateTime from = parseDateTime(timeRange[0].trim());
+                        LocalDateTime to = parseDateTime(timeRange[1].trim());
+                        Event event = new Event(details[0].trim(), 0, from, to);
                         System.out.print(border + "Got it. I've added this task:\n");
                         System.out.print(event.toString() + "\n");
                         list.add(event);
@@ -206,34 +265,6 @@ public class Tanjy {
             } catch (TanjyException e) {
                 System.out.print(border + e.getMessage() + "\n" + border);
             }
-        }
-    }
-
-    public static Task lineToTaskParser(String s) {
-        String[] lineParts = s.split("\\|", 2);
-        String typeOfTask = lineParts[0].trim();
-        String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
-
-        try {
-            switch (typeOfTask) {
-                case "T":
-                    String[] todoParts = taskContents.split("\\|", 2);
-                    int taskStatus = Integer.parseInt(todoParts[0].trim());
-                    return new Todo(todoParts[1].trim(), taskStatus);
-                case "D":
-                    String[] deadlineParts = taskContents.split("\\|", 3);
-                    taskStatus = Integer.parseInt(deadlineParts[0].trim());
-                    return new Deadline(deadlineParts[1].trim(), taskStatus, deadlineParts[2].trim());
-                case "E":
-                    String[] eventParts = taskContents.split("\\|", 4);
-                    taskStatus = Integer.parseInt(eventParts[0].trim());
-                    return new Event(eventParts[1].trim(), taskStatus,
-                            eventParts[2].trim(), eventParts[3].trim());
-                default:
-                    return null;
-            }
-        } catch (RuntimeException e) {
-            throw new RuntimeException(e);
         }
     }
 }
