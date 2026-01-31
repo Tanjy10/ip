@@ -3,12 +3,14 @@ package tanjy;
 import tanjy.exception.TanjyException;
 import tanjy.parser.Parser;
 import tanjy.storage.Storage;
+import tanjy.task.Task;
 import tanjy.task.TaskList;
 import tanjy.ui.Ui;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class Tanjy {
     private final Ui ui;
@@ -153,6 +155,14 @@ public class Tanjy {
                     } catch (IOException e) {
                         ui.printSaveFail();
                     }
+                    break;
+
+                case "find":
+                    if (remainder.isBlank()) {
+                        throw new TanjyException("Give a keyword to search for!");
+                    }
+                    ArrayList<Task> matches =taskList.findTasks(remainder);
+                    ui.printMatchingTasks(matches);
                     break;
 
                 // When not a command, it is a task to be added
