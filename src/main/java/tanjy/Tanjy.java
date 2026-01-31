@@ -1,3 +1,5 @@
+package tanjy;
+
 import tanjy.exception.TanjyException;
 import tanjy.parser.Parser;
 import tanjy.storage.Storage;
