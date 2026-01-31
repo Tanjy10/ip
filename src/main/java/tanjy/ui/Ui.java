@@ -15,7 +15,6 @@ public class Ui {
             + BORDER;
     private final Scanner scanner;
 
-
     public Ui() {
         this.scanner = new Scanner(System.in);
     }
@@ -111,4 +110,21 @@ public class Ui {
                 + "Now you have " + total + " task(s) in your list.\n"
                 + BORDER);
     }
+
+    /**
+     * Prints the list of matching tasks.
+     *
+     * @param matchingTasks Tasks that match the search keyword.
+     */
+    public void printMatchingTasks(ArrayList<Task> matchingTasks) {
+        System.out.print(BORDER +
+                "Here are the matching tasks in your list:\n");
+
+        for (int i = 0; i < matchingTasks.size(); i++) {
+            System.out.println((i + 1) + "." + matchingTasks.get(i));
+        }
+
+        System.out.print(BORDER);
+    }
+
 }
