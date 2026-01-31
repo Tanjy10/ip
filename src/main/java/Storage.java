@@ -1,12 +1,28 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Storage {
+    private Path filePath;
+    private List<String> savedList = new ArrayList<String>();
 
-    public Boolean doesFileExist(Path filePath) throws IOException {
+    public Storage(Path filePath) {
+        this.filePath = filePath;
+    }
+
+    public Path getFilePath() {
+        return filePath;
+    }
+
+    public List<String> getSavedList() {
+        return savedList;
+    }
+
+    public Boolean doesFileExist() throws IOException {
         Files.createDirectories(filePath.getParent());
 
         // If file exists, load it. Else, create a new file.
@@ -17,15 +33,23 @@ public class Storage {
         }
     }
 
-    public List<String> loadSavedFile(Path filePath) throws IOException {
-        return Files.readAllLines(filePath);
+    public void loadSavedFile() throws IOException {
+        savedList = Files.readAllLines(filePath);
     }
 
-    public void createNewFile(Path filePath) throws IOException {
+    public void createNewFile() throws IOException {
         Files.createFile(filePath);
     }
 
-    public void saveFile(Path filePath, List<String> list) throws IOException {
-        Files.write(filePath, list, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    public void updateSavedList(ArrayList<Task> taskList) {
+        for (Task t : taskList) {
+            String line = t.getTaskType() + "|" + t.getStatus() + "|" + t.getName();
+            savedList.add(line);
+        }
+    }
+
+    public void saveFile() throws IOException {
+        Files.createDirectories(filePath.getParent());
+        Files.write(filePath, savedList, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

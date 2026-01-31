@@ -17,6 +17,10 @@ public class Ui {
         this.scanner = new Scanner(System.in);
     }
 
+    public String readCommand() {
+        return scanner.nextLine();
+    }
+
     public void printIntro() {
         System.out.print(INTRO);
     }
@@ -25,17 +29,13 @@ public class Ui {
         System.out.print(OUTRO);
     }
 
-    public String readCommand() {
-        return scanner.nextLine();
-    }
-
     public void close() {
         scanner.close();
     }
 
-    public void printError(String errorMessage) {
+    public void printError(String error) {
         System.out.print(BORDER +
-                errorMessage + "\n" +
+                error + "\n" +
                 BORDER );
     }
 
@@ -90,14 +90,14 @@ public class Ui {
     public void printMarkSuccess(Task t) {
         System.out.print(BORDER +
                 "Nice! I've marked this task as done:\n"
-                + "[X] " + t.toString() + "\n"
+                + "[X] " + t.getName() + "\n"
                 + BORDER);
     }
 
     public void printUnmarkSuccess(Task t) {
         System.out.print(BORDER
                 + "OK, I've marked this task as not done yet:\n"
-                + "[ ] " + t.toString() + "\n"
+                + "[ ] " + t.getName() + "\n"
                 + BORDER);
     }
 

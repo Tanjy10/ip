@@ -2,6 +2,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Parser {
     private static final DateTimeFormatter IN_DATE =
@@ -13,15 +15,18 @@ public class Parser {
         String input = s.trim();
         try {
             return LocalDateTime.parse(input, IN_DATETIME);
-        } catch (DateTimeParseException ignored) { }
+        } catch (DateTimeParseException ignored) {
+        }
 
         try {
             return LocalDate.parse(input, IN_DATE).atStartOfDay();
-        } catch (DateTimeParseException ignored) { }
+        } catch (DateTimeParseException ignored) {
+        }
 
         try {
             return LocalDateTime.parse(input);
-        } catch (DateTimeParseException ignored) { }
+        } catch (DateTimeParseException ignored) {
+        }
 
         throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
     }
@@ -53,6 +58,13 @@ public class Parser {
             }
         } catch (RuntimeException | TanjyException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
+        for (String line : savedList) {
+            Task t = lineToTaskParser(line);
+            taskList.add(t);
         }
     }
 }

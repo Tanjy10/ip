@@ -1,37 +1,29 @@
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 public class Tanjy {
     private static Ui ui;
     private static Storage storage;
     private static Parser parser;
+    private static TaskList taskList;
 
-
-    public static void main(String[] args) {
+    public Tanjy(String filePath) {
         ui = new Ui();
-        storage = new Storage();
+        storage = new Storage(Paths.get(filePath));
         parser = new Parser();
-        ArrayList<Task> list = new ArrayList<>();
-        Path filePath = Paths.get("data", "Tanjy.txt");
-        List<String> savedList = new ArrayList<String>();
-        Scanner scanner = new Scanner(System.in);
+        taskList = new TaskList();
+    }
 
-        // Print intro
+    public void run() {
         ui.printIntro();
 
-        // if file exits, load it. Else, create a new file.
         try {
-            if (storage.doesFileExist(filePath)) {
+            if (storage.doesFileExist()) {
                 ui.printLoadSuccess();
-                savedList = storage.loadSavedFile(filePath);
+                storage.loadSavedFile();
             } else {
-                storage.createNewFile(filePath);
+                storage.createNewFile();
                 ui.printCreatedNewFile();
             }
         } catch (IOException e) {
@@ -39,14 +31,11 @@ public class Tanjy {
         }
 
         // Parse the lines in the file into actual tasks
-        for (String line : savedList) {
-            Task t = parser.lineToTaskParser(line);
-            list.add(t);
-        }
+        parser.stringListToTaskList(taskList.getTaskList(), storage.getSavedList());
 
         // Create while loop to continuously take inputs
         while (true) {
-            String text = scanner.nextLine();
+            String text = ui.readCommand();
             String[] parts = text.split("\\s+", 2);
             String command = parts[0].trim();
             String remainder = parts.length > 1 ? parts[1].trim() : "";
@@ -56,12 +45,12 @@ public class Tanjy {
                     // When command == bye, print outro and close scanner
                     case "bye":
                         ui.printOutro();
-                        scanner.close();
+                        ui.close();
                         return;
 
                     // When command == list, print entire list
                     case "list":
-                        ui.printList(list);
+                        ui.printList(taskList.getTaskList());
                         break;
 
                     // When command == mark, mark task as done
@@ -71,12 +60,11 @@ public class Tanjy {
                         if (!parts[1].matches("\\d+"))
                             throw new TanjyException("That's not a number :((");
                         int inputNumber = Integer.parseInt(parts[1]);
-                        if (inputNumber <= 0 || inputNumber > list.size())
+                        if (inputNumber <= 0 || inputNumber > taskList.size())
                             throw new TanjyException("Invalid index! Enter another number, or add a task!");
                         int index = inputNumber - 1;
-                        ui.printMarkSuccess(list.get(index));
-                        Task task = list.get(index);
-                        task.mark();
+                        ui.printMarkSuccess(taskList.getTask(index));
+                        taskList.markTask(index);
                         break;
 
                     // When command == unmark, unmark as done
@@ -85,22 +73,22 @@ public class Tanjy {
                             throw new TanjyException("You did not indicate which task to unmark!");
                         if (!parts[1].matches("\\d+"))
                             throw new TanjyException("That's not a number :((");
+
                         inputNumber = Integer.parseInt(parts[1]);
-                        if (inputNumber <= 0 || inputNumber > list.size())
+
+                        if (inputNumber <= 0 || inputNumber > taskList.size())
                             throw new TanjyException("Invalid index! Enter another number, or add a task!");
+
                         index = inputNumber - 1;
-                        ui.printUnmarkSuccess(list.get(index));
-                        task = list.get(index);
-                        task.unmark();
+                        ui.printUnmarkSuccess(taskList.getTask(index));
+                        taskList.unmarkTask(index);
                         break;
 
                     // When command == to-do, it's a to-do task
                     case "todo":
-                        if (remainder.isBlank())
-                            throw new TanjyException("Todo description cannot be empty.");
-                        Todo todo = new Todo(remainder.trim(), 0);
-                        list.add(todo);
-                        ui.printAddSuccess(todo, list.size() + 1);
+                        if (remainder.isBlank()) throw new TanjyException("Todo description cannot be empty.");
+                        taskList.addTodo(remainder.trim());
+                        ui.printAddSuccess(taskList.getMostRecentTask(), taskList.size());
                         break;
 
                     // When command == deadline, it's a deadline task
@@ -111,9 +99,8 @@ public class Tanjy {
                         if (details.length == 1)
                             throw new TanjyException("You need to set a deadline by adding '/by' after the task!");
                         LocalDateTime by = parser.parseDateTime(details[1].trim());
-                        Deadline deadline = new Deadline(details[0].trim(), 0, by);
-                        list.add(deadline);
-                        ui.printAddSuccess(deadline, list.size() + 1);
+                        taskList.addDeadline(details[0].trim(), by);
+                        ui.printAddSuccess(taskList.getMostRecentTask(), taskList.size());
                         break;
 
                     // When command == Event, it's an event task
@@ -128,9 +115,8 @@ public class Tanjy {
                             throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
                         LocalDateTime from = parser.parseDateTime(timeRange[0].trim());
                         LocalDateTime to = parser.parseDateTime(timeRange[1].trim());
-                        Event event = new Event(details[0].trim(), 0, from, to);
-                        list.add(event);
-                        ui.printAddSuccess(event, list.size() + 1);
+                        taskList.addEvent(details[0].trim(), from, to);
+                        ui.printAddSuccess(taskList.getMostRecentTask(), taskList.size());
                         break;
 
                     // When command == Delete, it's to delete a task in the list
@@ -140,25 +126,17 @@ public class Tanjy {
                         if (!parts[1].matches("\\d+"))
                             throw new TanjyException("That's not a number :((");
                         inputNumber = Integer.parseInt(parts[1]);
-                        if (inputNumber <= 0 || inputNumber > list.size())
+                        if (inputNumber <= 0 || inputNumber > taskList.size())
                             throw new TanjyException("Invalid index! Enter another number, or add a Task!");
                         index = inputNumber - 1;
-                        Task deleted = list.get(index);
-                        list.remove(deleted);
-                        ui.printDeleteSuccess(deleted, list.size() - 1);
+                        ui.printDeleteSuccess(taskList.getTask(index), taskList.size() - 1);
+                        taskList.delete(index);
                         break;
 
                     case "save":
                         try {
-                            Paths.get("data", "tanjy.txt");
-                            Files.createDirectories(filePath.getParent());
-
-                            List<String> linesToSave = new ArrayList<>();
-                            for (Task t : list) {
-                                String line = t.getTaskType() + "|" + t.getStatus() + "|" + t.getName();
-                                linesToSave.add(line);
-                            }
-                            storage.saveFile(filePath, linesToSave);
+                            storage.updateSavedList(taskList.getTaskList());
+                            storage.saveFile();
                             ui.printSaveSuccess();
                         } catch (IOException e) {
                             ui.printSaveFail();
@@ -170,8 +148,12 @@ public class Tanjy {
                         throw new TanjyException("Huh? No such command. Enter something else!");
                 }
             } catch (TanjyException e) {
-                throw new RuntimeException();
+                ui.printError(e.getMessage());
             }
         }
+    }
+
+    public static void main(String[] args) {
+        new Tanjy("data/Tanjy.txt").run();
     }
 }
