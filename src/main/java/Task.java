@@ -25,6 +25,7 @@ public class Task {
         return this.name;
     }
 
+    @Override
     public String toString() {
         if (status == 1) {
             description = "[X] " + this.name;
