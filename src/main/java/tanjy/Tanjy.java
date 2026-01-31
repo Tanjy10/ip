@@ -16,6 +16,11 @@ public class Tanjy {
     private final Parser parser;
     private final TaskList taskList;
 
+    /**
+     * Constructs the chatbot with the specified filePath.
+     *
+     * @param filePath FilePath containing the list of tasks.
+     */
     public Tanjy(String filePath) {
         ui = new Ui();
         storage = new Storage(Paths.get(filePath));
@@ -23,6 +28,9 @@ public class Tanjy {
         taskList = new TaskList();
     }
 
+    /**
+     * Runs the chatbot.
+     */
     public void run() {
         ui.printIntro();
 
@@ -165,6 +173,11 @@ public class Tanjy {
         }
     }
 
+    /**
+     * Entry point of the chatbot.
+     *
+     * @param args Command-line arguments.
+     */
     public static void main(String[] args) {
         new Tanjy("data/Tanjy.txt").run();
     }

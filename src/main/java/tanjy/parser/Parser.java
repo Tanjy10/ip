@@ -18,6 +18,14 @@ public class Parser {
     private static final DateTimeFormatter IN_DATETIME =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
 
+    /**
+     * Parses the given string into LocalDateTime.
+     *
+     * @param s Date/time string to parse.
+     * @return Parsed LocalDateTime.
+     * @throws TanjyException if the input does not match supported format.
+     */
+
     public LocalDateTime parseDateTime(String s) throws TanjyException {
         String input = s.trim();
         try {
@@ -38,7 +46,14 @@ public class Parser {
         throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
     }
 
-    public Task lineToTaskParser(String s) {
+    /**
+     * Parses a single saved task line into a Task object.
+     *
+     * @param s A line from the saved task file.
+     * @return The parsed Task object, or null if the task type is unknown.
+     * @throws TanjyException if the line has missing fields or invalid status.
+     */
+    public Task lineToTaskParser(String s) throws RuntimeException{
         String[] lineParts = s.split("\\|", 2);
         String typeOfTask = lineParts[0].trim();
         String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
@@ -63,10 +78,18 @@ public class Parser {
                 default:
                     return null;
             }
-        } catch (RuntimeException | TanjyException e) {
+        } catch (TanjyException e) {
             throw new RuntimeException(e);
         }
     }
+
+    /**
+     * Parses a list of saved task descriptions and appends the parsed tasks to the given task list.
+     *
+     * @param taskList The list to add parsed tasks.
+     * @param savedList The list of saved task description strings.
+     * @return The same taskList instance after tasks have been added.
+     */
 
     public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
         for (String line : savedList) {

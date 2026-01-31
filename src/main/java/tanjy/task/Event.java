@@ -11,6 +11,15 @@ public class Event extends Task {
     private static final DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("MMM dd yyyy");
     private static final DateTimeFormatter dateAndTime = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
 
+    /**
+     * Constructs an event task with the task description, task status, and time window to finish the task by.
+     *
+     * @param name The event task description.
+     * @param status The event task status.
+     * @param from The beginning date of the event task.
+     * @param to The end date of the event task.
+     */
+
     public Event(String name, int status, LocalDateTime from, LocalDateTime to) {
         super(name, status);
         this.from = from;
