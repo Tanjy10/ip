@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +22,6 @@ public class Storage {
     }
 
     public Boolean doesFileExist() throws IOException {
-        Files.createDirectories(filePath.getParent());
-
         // If file exists, load it. Else, create a new file.
         if (Files.exists(filePath)) {
             return true;
@@ -42,6 +39,7 @@ public class Storage {
     }
 
     public void updateSavedList(ArrayList<Task> taskList) {
+        savedList.clear();
         for (Task t : taskList) {
             String line = t.getTaskType() + "|" + t.getStatus() + "|" + t.getName();
             savedList.add(line);
@@ -49,7 +47,6 @@ public class Storage {
     }
 
     public void saveFile() throws IOException {
-        Files.createDirectories(filePath.getParent());
         Files.write(filePath, savedList, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

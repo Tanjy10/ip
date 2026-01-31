@@ -8,6 +8,10 @@ public class TaskList {
         return list;
     }
 
+    public void addAll(ArrayList<Task> tasks) {
+        this.list.addAll(tasks);
+    }
+
     public int size() {
         return list.size();
     }

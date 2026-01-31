@@ -90,14 +90,14 @@ public class Ui {
     public void printMarkSuccess(Task t) {
         System.out.print(BORDER +
                 "Nice! I've marked this task as done:\n"
-                + "[X] " + t.getName() + "\n"
+                + t.toString() + "\n"
                 + BORDER);
     }
 
     public void printUnmarkSuccess(Task t) {
         System.out.print(BORDER
                 + "OK, I've marked this task as not done yet:\n"
-                + "[ ] " + t.getName() + "\n"
+                + t.toString() + "\n"
                 + BORDER);
     }
 

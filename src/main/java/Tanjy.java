@@ -3,10 +3,10 @@ import java.time.LocalDateTime;
 import java.io.IOException;
 
 public class Tanjy {
-    private static Ui ui;
-    private static Storage storage;
-    private static Parser parser;
-    private static TaskList taskList;
+    private final Ui ui;
+    private final Storage storage;
+    private final Parser parser;
+    private final TaskList taskList;
 
     public Tanjy(String filePath) {
         ui = new Ui();
@@ -32,6 +32,7 @@ public class Tanjy {
 
         // Parse the lines in the file into actual tasks
         parser.stringListToTaskList(taskList.getTaskList(), storage.getSavedList());
+
 
         // Create while loop to continuously take inputs
         while (true) {
@@ -59,12 +60,15 @@ public class Tanjy {
                             throw new TanjyException("You did not indicate which task to mark!");
                         if (!parts[1].matches("\\d+"))
                             throw new TanjyException("That's not a number :((");
+
                         int inputNumber = Integer.parseInt(parts[1]);
+
                         if (inputNumber <= 0 || inputNumber > taskList.size())
                             throw new TanjyException("Invalid index! Enter another number, or add a task!");
+
                         int index = inputNumber - 1;
-                        ui.printMarkSuccess(taskList.getTask(index));
                         taskList.markTask(index);
+                        ui.printMarkSuccess(taskList.getTask(index));
                         break;
 
                     // When command == unmark, unmark as done
@@ -80,8 +84,8 @@ public class Tanjy {
                             throw new TanjyException("Invalid index! Enter another number, or add a task!");
 
                         index = inputNumber - 1;
-                        ui.printUnmarkSuccess(taskList.getTask(index));
                         taskList.unmarkTask(index);
+                        ui.printUnmarkSuccess(taskList.getTask(index));
                         break;
 
                     // When command == to-do, it's a to-do task

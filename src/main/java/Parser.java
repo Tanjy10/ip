@@ -61,10 +61,12 @@ public class Parser {
         }
     }
 
-    public void stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
+    public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
         for (String line : savedList) {
             Task t = lineToTaskParser(line);
             taskList.add(t);
         }
+        return taskList;
     }
+
 }
