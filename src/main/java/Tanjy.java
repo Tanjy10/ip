@@ -1,12 +1,8 @@
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -14,61 +10,13 @@ import java.util.Scanner;
 public class Tanjy {
     private static Ui ui;
     private static Storage storage;
-    private static final DateTimeFormatter IN_DATE =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    private static final DateTimeFormatter IN_DATETIME =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HHmm");
+    private static Parser parser;
 
-    private static LocalDateTime parseDateTime(String s) throws TanjyException {
-        String input = s.trim();
-        try {
-            return LocalDateTime.parse(input, IN_DATETIME);
-        } catch (DateTimeParseException ignored) { }
-
-        try {
-            return LocalDate.parse(input, IN_DATE).atStartOfDay();
-        } catch (DateTimeParseException ignored) { }
-
-        try {
-            return LocalDateTime.parse(input);
-        } catch (DateTimeParseException ignored) { }
-
-        throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
-    }
-
-    public static Task lineToTaskParser(String s) {
-        String[] lineParts = s.split("\\|", 2);
-        String typeOfTask = lineParts[0].trim();
-        String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
-
-        try {
-            switch (typeOfTask) {
-                case "T":
-                    String[] todoParts = taskContents.split("\\|", 2);
-                    int taskStatus = Integer.parseInt(todoParts[0].trim());
-                    return new Todo(todoParts[1].trim(), taskStatus);
-                case "D":
-                    String[] deadlineParts = taskContents.split("\\|", 3);
-                    taskStatus = Integer.parseInt(deadlineParts[0].trim());
-                    LocalDateTime by = parseDateTime(deadlineParts[2].trim());
-                    return new Deadline(deadlineParts[1].trim(), taskStatus, by);
-                case "E":
-                    String[] eventParts = taskContents.split("\\|", 4);
-                    taskStatus = Integer.parseInt(eventParts[0].trim());
-                    LocalDateTime from = parseDateTime(eventParts[2].trim());
-                    LocalDateTime to = parseDateTime(eventParts[3].trim());
-                    return new Event(eventParts[1].trim(), taskStatus, from, to);
-                default:
-                    return null;
-            }
-        } catch (RuntimeException | TanjyException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void main(String[] args) {
         ui = new Ui();
         storage = new Storage();
+        parser = new Parser();
         ArrayList<Task> list = new ArrayList<>();
         Path filePath = Paths.get("data", "Tanjy.txt");
         List<String> savedList = new ArrayList<String>();
@@ -92,7 +40,7 @@ public class Tanjy {
 
         // Parse the lines in the file into actual tasks
         for (String line : savedList) {
-            Task t = lineToTaskParser(line);
+            Task t = parser.lineToTaskParser(line);
             list.add(t);
         }
 
@@ -162,7 +110,7 @@ public class Tanjy {
                         String[] details = remainder.split("/by", 2);
                         if (details.length == 1)
                             throw new TanjyException("You need to set a deadline by adding '/by' after the task!");
-                        LocalDateTime by = parseDateTime(details[1].trim());
+                        LocalDateTime by = parser.parseDateTime(details[1].trim());
                         Deadline deadline = new Deadline(details[0].trim(), 0, by);
                         list.add(deadline);
                         ui.printAddSuccess(deadline, list.size() + 1);
@@ -178,8 +126,8 @@ public class Tanjy {
                         String[] timeRange = details[1].split("/to", 2);
                         if (timeRange.length == 1)
                             throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
-                        LocalDateTime from = parseDateTime(timeRange[0].trim());
-                        LocalDateTime to = parseDateTime(timeRange[1].trim());
+                        LocalDateTime from = parser.parseDateTime(timeRange[0].trim());
+                        LocalDateTime to = parser.parseDateTime(timeRange[1].trim());
                         Event event = new Event(details[0].trim(), 0, from, to);
                         list.add(event);
                         ui.printAddSuccess(event, list.size() + 1);
