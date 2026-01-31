@@ -1,3 +1,6 @@
+package tanjy.ui;
+
+import tanjy.task.Task;
 import java.util.ArrayList;
 import java.util.Scanner;
 

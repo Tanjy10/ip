@@ -1,3 +1,5 @@
+package tanjy.task;
+
 public class Task {
     private String taskType;
     private String name;

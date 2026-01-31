@@ -1,4 +1,6 @@
-public class Todo extends Task{
+package tanjy.task;
+
+public class Todo extends Task {
 
 
     public Todo(String name, int status) {
