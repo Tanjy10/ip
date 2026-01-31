@@ -17,11 +17,11 @@ public class Task {
         this.status = status;
     }
 
-    public String getTaskType(){
+    public String getTaskType() {
         return taskType;
     }
 
-    public void setTaskType(String s){
+    public void setTaskType(String s) {
         taskType = s;
     }
 
