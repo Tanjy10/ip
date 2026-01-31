@@ -13,6 +13,7 @@ import java.util.Scanner;
 
 public class Tanjy {
     private static Ui ui;
+    private static Storage storage;
     private static final DateTimeFormatter IN_DATE =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter IN_DATETIME =
@@ -67,26 +68,23 @@ public class Tanjy {
 
     public static void main(String[] args) {
         ui = new Ui();
-        // Introducing Task list, intro and outro for bot
+        storage = new Storage();
         ArrayList<Task> list = new ArrayList<>();
-        String border = "____________________________________________________________\n";
+        Path filePath = Paths.get("data", "Tanjy.txt");
+        List<String> savedList = new ArrayList<String>();
+        Scanner scanner = new Scanner(System.in);
 
         // Print intro
         ui.printIntro();
 
-        // Try to search for file for saved list
-        Path filePath = Paths.get("data", "Tanjy.txt");
-        List<String> savedList= new ArrayList<>();
+        // if file exits, load it. Else, create a new file.
         try {
-            Files.createDirectories(filePath.getParent());
-
-            // If file exists, load it. Else, create a new file.
-            if (Files.exists(filePath)) {
-                savedList = Files.readAllLines(filePath);
+            if (storage.doesFileExist(filePath)) {
                 ui.printLoadSuccess();
+                savedList = storage.loadSavedFile(filePath);
             } else {
+                storage.createNewFile(filePath);
                 ui.printCreatedNewFile();
-                Files.createFile(filePath);
             }
         } catch (IOException e) {
             ui.printLoadFail();
@@ -97,8 +95,6 @@ public class Tanjy {
             Task t = lineToTaskParser(line);
             list.add(t);
         }
-
-        Scanner scanner = new Scanner(System.in);
 
         // Create while loop to continuously take inputs
         while (true) {
@@ -214,12 +210,7 @@ public class Tanjy {
                                 String line = t.getTaskType() + "|" + t.getStatus() + "|" + t.getName();
                                 linesToSave.add(line);
                             }
-                            Files.write(
-                                    filePath,
-                                    linesToSave,
-                                    StandardOpenOption.CREATE,
-                                    StandardOpenOption.TRUNCATE_EXISTING
-                            );
+                            storage.saveFile(filePath, linesToSave);
                             ui.printSaveSuccess();
                         } catch (IOException e) {
                             ui.printSaveFail();
@@ -231,7 +222,7 @@ public class Tanjy {
                         throw new TanjyException("Huh? No such command. Enter something else!");
                 }
             } catch (TanjyException e) {
-                System.out.print(border + e.getMessage() + "\n" + border);
+                throw new RuntimeException();
             }
         }
     }
