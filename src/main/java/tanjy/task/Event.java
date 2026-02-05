@@ -3,14 +3,14 @@ package tanjy.task;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents an event task with a start and end time.
+ */
 public class Event extends Task {
-
-    protected LocalDateTime from;
-    protected LocalDateTime to;
-
     private static final DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("MMM dd yyyy");
     private static final DateTimeFormatter dateAndTime = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
-
+    protected LocalDateTime from;
+    protected LocalDateTime to;
     /**
      * Constructs an event task with the task description, task status, and time window to finish the task by.
      *
@@ -34,7 +34,8 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        String fromDate, toDate;
+        String fromDate;
+        String toDate;
         if (from.getHour() == 0 && from.getMinute() == 0) {
             fromDate = from.format(dateOnly);
         } else {

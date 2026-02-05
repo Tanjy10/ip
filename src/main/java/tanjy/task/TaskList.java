@@ -3,6 +3,9 @@ package tanjy.task;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+/**
+ * Represents the list of tasks.
+ */
 public class TaskList {
     private ArrayList<Task> list = new ArrayList<>();
 

@@ -3,13 +3,13 @@ package tanjy.task;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Represents a deadline task with a due date.
+ */
 public class Deadline extends Task {
-
-    protected LocalDateTime by;
-
     private static final DateTimeFormatter dateOnly = DateTimeFormatter.ofPattern("MMM dd yyyy");
     private static final DateTimeFormatter dateAndTime = DateTimeFormatter.ofPattern("MMM dd yyyy HH:mm");
-
+    private LocalDateTime by;
     /**
      * Constructs a deadline task with the task description, task status and date to finish the task by.
      *

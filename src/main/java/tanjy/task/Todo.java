@@ -1,5 +1,8 @@
 package tanjy.task;
 
+/**
+ * Represents a simple todo task without any dates.
+ */
 public class Todo extends Task {
 
     /**

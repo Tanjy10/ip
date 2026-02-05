@@ -1,10 +1,13 @@
 package tanjy.task;
 
+/**
+ * Represents a generic task with a task description and completion status.
+ */
 public class Task {
     private String taskType;
     private String name;
     private int status;
-    protected String description;
+    private String description;
 
     /**
      * Constructs a task with the task description and task status.

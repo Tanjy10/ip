@@ -7,12 +7,15 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import tanjy.task.Task;
-import tanjy.task.Todo;
+import tanjy.exception.TanjyException;
 import tanjy.task.Deadline;
 import tanjy.task.Event;
-import tanjy.exception.TanjyException;
+import tanjy.task.Task;
+import tanjy.task.Todo;
 
+/**
+ * Parses user and storage inputs into Task data.
+ */
 public class Parser {
     private static final DateTimeFormatter IN_DATE =
             DateTimeFormatter.ofPattern("yyyy-MM-dd");
@@ -29,22 +32,25 @@ public class Parser {
 
     public LocalDateTime parseDateTime(String s) throws TanjyException {
         String input = s.trim();
-        try {
-            return LocalDateTime.parse(input, IN_DATETIME);
-        } catch (DateTimeParseException ignored) {
-        }
+        DateTimeFormatter[] formatters = {IN_DATETIME, IN_DATE};
 
-        try {
-            return LocalDate.parse(input, IN_DATE).atStartOfDay();
-        } catch (DateTimeParseException ignored) {
+        for (DateTimeFormatter formatter : formatters) {
+            try {
+                if (formatter == IN_DATE) {
+                    return LocalDate.parse(input, formatter).atStartOfDay();
+                }
+                return LocalDateTime.parse(input, formatter);
+            } catch (DateTimeParseException e) {
+                // try next formatter
+            }
         }
-
         try {
             return LocalDateTime.parse(input);
-        } catch (DateTimeParseException ignored) {
+        } catch (DateTimeParseException e) {
+            throw new TanjyException(
+                    "Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm"
+            );
         }
-
-        throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
     }
 
     /**
@@ -54,7 +60,7 @@ public class Parser {
      * @return The parsed Task object, or null if the task type is unknown.
      * @throws TanjyException if the line has missing fields or invalid status.
      */
-    public Task lineToTaskParser(String s) throws RuntimeException{
+    public Task lineToTaskParser(String s) throws RuntimeException {
         String[] lineParts = s.split("\\|", 2);
         String typeOfTask = lineParts[0].trim();
         String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
