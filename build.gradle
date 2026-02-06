@@ -28,7 +28,7 @@ test {
 }
 
 application {
-    mainClass.set("tanjy.Tanjy")
+    mainClass.set("tanjy.gui.Main")
 }
 
 shadowJar {

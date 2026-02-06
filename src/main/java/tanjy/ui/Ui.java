@@ -27,8 +27,16 @@ public class Ui {
         return scanner.nextLine();
     }
 
+    public String getIntro() {
+        return INTRO;
+    }
+
     public void printIntro() {
         System.out.print(INTRO);
+    }
+
+    public String getOutro() {
+        return OUTRO;
     }
 
     public void printOutro() {
@@ -50,49 +58,79 @@ public class Ui {
                 + BORDER);
     }
 
+    public String getLoadSuccessMessage() {
+        return BORDER
+                + "Your saved list has been found and loaded! :D\n"
+                + BORDER;
+    }
+
     /**
      * Prints a message when loading from file is successful.
      */
     public void printLoadSuccess() {
-        System.out.print(BORDER
-                + "Your saved list has been found and loaded! :D\n"
-                + BORDER);
+        System.out.print(getLoadSuccessMessage());
+    }
+
+    public String getCreatedNewFileMessage() {
+        return BORDER
+                + "Looks like this is your first time. Let me create a list for you!\n"
+                + BORDER;
     }
 
     /**
      * Prints a message when creating a new file is successful.
      */
     public void printCreatedNewFile() {
-        System.out.print(BORDER
-                + "Looks like this is your first time. Let me create a list for you!\n"
-                + BORDER);
+        System.out.print(getCreatedNewFileMessage());
+    }
+
+    public String getLoadFailMessage() {
+        return BORDER
+                + "Could not load file. :( \n"
+                + BORDER;
     }
 
     /**
      * Prints a message when loading the file did not work.
      */
     public void printLoadFail() {
-        System.out.print(BORDER
-                + "Could not load file. :( \n"
-                + BORDER);
+        System.out.print(getLoadFailMessage());
+    }
+
+    public String getSaveSuccessMessage() {
+        return BORDER
+                + "Your list has been saved successfully!\n"
+                + BORDER;
     }
 
     /**
      * Prints a message when the "save" command has been run successfully.
      */
     public void printSaveSuccess() {
-        System.out.print(BORDER
-                + "Your list has been saved successfully!\n"
-                + BORDER);
+        System.out.print(getSaveSuccessMessage());
+    }
+
+    public String getSaveFailMessage() {
+        return BORDER
+                + "Could not save file. :(\n"
+                + BORDER;
     }
 
     /**
      * Prints a message when the "save" command did not work.
      */
     public void printSaveFail() {
-        System.out.print(BORDER
-                + "Could not save file. :(\n"
-                + BORDER);
+        System.out.print(getSaveFailMessage());
+    }
+
+    public String getListMessage(ArrayList<Task> list) {
+        String curr = BORDER
+                + "Here are the task(s) in your list:\n";
+        for (int i = 0; i < list.size(); i++) {
+            curr += (i + 1) + ".";
+            curr += list.get(i).toString() + "\n";
+        }
+        return curr + BORDER;
     }
 
     /**
@@ -101,13 +139,15 @@ public class Ui {
      * @param list the TaskList to parse through to print each task.
      */
     public void printList(ArrayList<Task> list) {
-        System.out.print(BORDER
-                + "Here are the task(s) in your list:\n");
-        for (int i = 0; i < list.size(); i++) {
-            System.out.print((i + 1) + ".");
-            System.out.print(list.get(i).toString() + "\n");
-        }
-        System.out.print(BORDER);
+        System.out.print(getListMessage(list));
+    }
+
+    public String getAddSuccessMessage(Task t, int total) {
+        return BORDER
+                + "Got it. I've added this task:\n"
+                + t.toString() + "\n"
+                + "Now you have " + total + " task(s) in your list.\n"
+                + BORDER;
     }
 
     /**
@@ -116,11 +156,14 @@ public class Ui {
      * @param total the list of tasks.
      */
     public void printAddSuccess(Task t, int total) {
-        System.out.print(BORDER
-                + "Got it. I've added this task:\n"
+        System.out.print(getAddSuccessMessage(t, total));
+    }
+
+    public String getMarkSuccessMessage(Task t) {
+        return BORDER
+                + "Nice! I've marked this task as done:\n"
                 + t.toString() + "\n"
-                + "Now you have " + total + " task(s) in your list.\n"
-                + BORDER);
+                + BORDER;
     }
 
     /**
@@ -128,10 +171,14 @@ public class Ui {
      * @param t the task to be marked.
      */
     public void printMarkSuccess(Task t) {
-        System.out.print(BORDER
-                + "Nice! I've marked this task as done:\n"
+        System.out.print(getMarkSuccessMessage(t));
+    }
+
+    public String getUnmarkSuccessMessage(Task t) {
+        return BORDER
+                + "OK, I've marked this task as not done yet:\n"
                 + t.toString() + "\n"
-                + BORDER);
+                + BORDER;
     }
 
     /**
@@ -139,10 +186,15 @@ public class Ui {
      * @param t the task to be unmarked.
      */
     public void printUnmarkSuccess(Task t) {
-        System.out.print(BORDER
-                + "OK, I've marked this task as not done yet:\n"
+        System.out.print(getUnmarkSuccessMessage(t));
+    }
+
+    public String getDeleteSuccessMessage(Task t, int total) {
+        return BORDER
+                + "Got it. I've removed this task:\n"
                 + t.toString() + "\n"
-                + BORDER);
+                + "Now you have " + total + " task(s) in your list.\n"
+                + BORDER;
     }
 
     /**
@@ -151,11 +203,7 @@ public class Ui {
      * @param total the list after deletion.
      */
     public void printDeleteSuccess(Task t, int total) {
-        System.out.print(BORDER
-                + "Got it. I've removed this task:\n"
-                + t.toString() + "\n"
-                + "Now you have " + total + " task(s) in your list.\n"
-                + BORDER);
+        System.out.print(getDeleteSuccessMessage(t, total));
     }
 
     /**
@@ -174,4 +222,12 @@ public class Ui {
         System.out.print(BORDER);
     }
 
+    /**
+     * Prints a string given.
+     *
+     * @param string The string to be printed.
+     */
+    public void print(String string) {
+        System.out.print(string);
+    }
 }
