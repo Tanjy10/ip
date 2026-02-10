@@ -31,6 +31,7 @@ public class Parser {
      */
 
     public LocalDateTime parseDateTime(String s) throws TanjyException {
+        assert s != null : "Date/Time string should not be null";
         String input = s.trim();
         DateTimeFormatter[] formatters = {IN_DATETIME, IN_DATE};
 
@@ -61,6 +62,7 @@ public class Parser {
      * @throws TanjyException if the line has missing fields or invalid status.
      */
     public Task lineToTaskParser(String s) throws RuntimeException {
+        assert s != null : "Saved task line should not be null";
         String[] lineParts = s.split("\\|", 2);
         String typeOfTask = lineParts[0].trim();
         String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
@@ -99,6 +101,8 @@ public class Parser {
      */
 
     public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
+        assert taskList != null : "Tasklist should not be null.";
+        assert savedList != null : "Saved list should not be null.";
         for (String line : savedList) {
             Task t = lineToTaskParser(line);
             taskList.add(t);
