@@ -21,7 +21,10 @@ import tanjy.ui.Ui;
  * Runs a command-processing loop until the user exits the program.
  */
 public class Tanjy {
-    private static final String BORDER = "____________________________________________________________\n";
+    private static final String TOKEN_BY = "/by";
+    private static final String TOKEN_FROM = "/from";
+    private static final String TOKEN_TO = "/to";
+
     private boolean isExit = false;
     private String welcomeMessage;
 
@@ -34,7 +37,7 @@ public class Tanjy {
      *
      * @param filePath FilePath containing the list of tasks.
      */
-    public Tanjy(String filePath) {
+    public Tanjy(String filePath) throws TanjyException {
         ui = new Ui();
         storage = new Storage(Paths.get(filePath));
         parser = new Parser();
@@ -56,7 +59,7 @@ public class Tanjy {
         }
     }
 
-    private void initFromStorage() {
+    private void initFromStorage() throws TanjyException {
         try {
             if (storage.doesFileExist()) {
                 storage.loadSavedFile();
@@ -89,7 +92,7 @@ public class Tanjy {
     public String getResponse(String input) {
         String text = input.trim();
         if (text.isEmpty()) {
-            return BORDER + "Please type a command." + "\n" + BORDER;
+            return "Please type a command.\n";
         }
 
         String[] parts = text.split("\\s+", 2);
@@ -112,78 +115,28 @@ public class Tanjy {
                 return handleMark(remainder, false);
 
             case TODO:
-                if (remainder.isBlank()) {
-                    throw new TanjyException("Todo description cannot be empty.");
-                }
-                taskList.addTodo(remainder.trim());
-                return ui.getAddSuccessMessage(taskList.getMostRecentTask(), taskList.size());
+                return handleTodo(remainder);
 
             case DEADLINE:
-                if (remainder.isBlank()) {
-                    throw new TanjyException("Deadline description cannot be empty.");
-                }
-                String[] details = remainder.split("/by", 2);
-                if (details.length == 1) {
-                    throw new TanjyException("You need to set a deadline by adding '/by' after the task!");
-                }
-                LocalDateTime by = parser.parseDateTime(details[1].trim());
-                taskList.addDeadline(details[0].trim(), by);
-                return ui.getAddSuccessMessage(taskList.getMostRecentTask(), taskList.size());
+                return handleDeadline(remainder);
 
             case EVENT:
-                if (remainder.isBlank()) {
-                    throw new TanjyException("Event description cannot be empty.");
-                }
-                details = remainder.split("/from", 2);
-                if (details.length == 1) {
-                    throw new TanjyException("You need to set a start date by adding '/from' after the task!");
-                }
-                String[] timeRange = details[1].split("/to", 2);
-                if (timeRange.length == 1) {
-                    throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
-                }
-                LocalDateTime from = parser.parseDateTime(timeRange[0].trim());
-                LocalDateTime to = parser.parseDateTime(timeRange[1].trim());
-                taskList.addEvent(details[0].trim(), from, to);
-                return ui.getAddSuccessMessage(taskList.getMostRecentTask(), taskList.size());
+                return handleEvent(remainder);
 
             case DELETE:
-                if (remainder.isBlank()) {
-                    throw new TanjyException("You did not indicate which task to delete!");
-                }
-                if (!remainder.matches("\\d+")) {
-                    throw new TanjyException("That's not a number :((");
-                }
-                int inputNumber = Integer.parseInt(remainder);
-                if (inputNumber <= 0 || inputNumber > taskList.size()) {
-                    throw new TanjyException("Invalid index! Enter another number, or add a Task!");
-                }
-                int index = inputNumber - 1;
-                Task deleted = taskList.getTask(index);
-                taskList.delete(index);
-                return ui.getDeleteSuccessMessage(deleted, taskList.size());
+                return handleDelete(remainder);
 
             case SAVE:
-                try {
-                    storage.updateSavedList(taskList.getTaskList());
-                    storage.saveFile();
-                    return ui.getSaveSuccessMessage();
-                } catch (IOException e) {
-                    return ui.getSaveFailMessage();
-                }
+                return handleSave();
 
             case FIND:
-                if (remainder.isBlank()) {
-                    throw new TanjyException("Give a keyword to search for!");
-                }
-                ArrayList<Task> matches = taskList.findTasks(remainder);
-                return formatMatchingTasks(matches);
+                return handleFind(remainder);
 
             default:
                 throw new TanjyException("Huh? No such command. Enter something else!");
             }
         } catch (TanjyException e) {
-            return BORDER + e.getMessage() + "\n" + BORDER;
+            return e.getMessage() + "\n";
         }
     }
 
@@ -212,14 +165,87 @@ public class Tanjy {
         }
     }
 
+    private String handleTodo(String remainder) throws TanjyException {
+        if (remainder.isBlank()) {
+            throw new TanjyException("Todo description cannot be empty.");
+        }
+        taskList.addTodo(remainder.trim());
+        return ui.getAddSuccessMessage(taskList.getMostRecentTask(), taskList.size());
+    }
+
+    private String handleDeadline(String remainder) throws TanjyException {
+        if (remainder.isBlank()) {
+            throw new TanjyException("Deadline description cannot be empty.");
+        }
+        String[] details = remainder.split(TOKEN_BY, 2);
+        if (details.length == 1) {
+            throw new TanjyException("You need to set a deadline by adding '/by' after the task!");
+        }
+        LocalDateTime by = parser.parseDateTime(details[1].trim());
+        taskList.addDeadline(details[0].trim(), by);
+        return ui.getAddSuccessMessage(taskList.getMostRecentTask(), taskList.size());
+    }
+
+    private String handleEvent(String remainder) throws TanjyException {
+        if (remainder.isBlank()) {
+            throw new TanjyException("Event description cannot be empty.");
+        }
+        String[] details = remainder.split(TOKEN_BY, 2);
+        details = remainder.split(TOKEN_FROM, 2);
+        if (details.length == 1) {
+            throw new TanjyException("You need to set a start date by adding '/from' after the task!");
+        }
+        String[] timeRange = details[1].split(TOKEN_TO, 2);
+        if (timeRange.length == 1) {
+            throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
+        }
+        LocalDateTime from = parser.parseDateTime(timeRange[0].trim());
+        LocalDateTime to = parser.parseDateTime(timeRange[1].trim());
+        taskList.addEvent(details[0].trim(), from, to);
+        return ui.getAddSuccessMessage(taskList.getMostRecentTask(), taskList.size());
+    }
+
+    private String handleDelete(String remainder) throws TanjyException {
+        if (remainder.isBlank()) {
+            throw new TanjyException("You did not indicate which task to delete!");
+        }
+        if (!remainder.matches("\\d+")) {
+            throw new TanjyException("That's not a number :((");
+        }
+        int inputNumber = Integer.parseInt(remainder);
+        if (inputNumber <= 0 || inputNumber > taskList.size()) {
+            throw new TanjyException("Invalid index! Enter another number, or add a Task!");
+        }
+        int index = inputNumber - 1;
+        Task deleted = taskList.getTask(index);
+        taskList.delete(index);
+        return ui.getDeleteSuccessMessage(deleted, taskList.size());
+    }
+
+    private String handleSave() {
+        try {
+            storage.updateSavedList(taskList.getTaskList());
+            storage.saveFile();
+            return ui.getSaveSuccessMessage();
+        } catch (IOException e) {
+            return ui.getSaveFailMessage();
+        }
+    }
     private String formatMatchingTasks(ArrayList<Task> matches) {
         StringBuilder sb = new StringBuilder();
-        sb.append(BORDER).append("Here are the matching tasks in your list:\n");
+        sb.append("Here are the matching tasks in your list:\n");
         for (int i = 0; i < matches.size(); i++) {
             sb.append(i + 1).append(".").append(matches.get(i)).append("\n");
         }
-        sb.append(BORDER);
         return sb.toString();
+    }
+
+    private String handleFind(String remainder) throws TanjyException {
+        if (remainder.isBlank()) {
+            throw new TanjyException("Give a keyword to search for!");
+        }
+        ArrayList<Task> matches = taskList.findTasks(remainder);
+        return formatMatchingTasks(matches);
     }
 
 
@@ -229,7 +255,7 @@ public class Tanjy {
      *
      * @param args Command-line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws TanjyException {
         new Tanjy("data/tanjy.txt").run();
     }
 }

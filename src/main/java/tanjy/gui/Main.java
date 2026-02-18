@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import tanjy.Tanjy;
+import tanjy.exception.TanjyException;
 
 /**
  * The entry point for the GUI application.
@@ -15,6 +16,9 @@ import tanjy.Tanjy;
 public class Main extends Application {
 
     private final Tanjy tanjy = new Tanjy("./data/tanjy.txt");
+
+    public Main() throws TanjyException {
+    }
 
     @Override
     public void start(Stage stage) {

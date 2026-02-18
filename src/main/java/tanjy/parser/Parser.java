@@ -64,33 +64,28 @@ public class Parser {
      * @return The parsed Task object, or null if the task type is unknown.
      * @throws TanjyException if the line has missing fields or invalid status.
      */
-    public Task lineToTaskParser(String s) throws RuntimeException {
+    public Task lineToTaskParser(String s) throws TanjyException {
         String[] lineParts = s.split("\\|", 2);
         String typeOfTask = lineParts[0].trim();
         String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
-
-        try {
-            switch (typeOfTask) {
-            case "T":
-                String[] todoParts = taskContents.split("\\|", 2);
-                int taskStatus = Integer.parseInt(todoParts[0].trim());
-                return new Todo(todoParts[1].trim(), taskStatus);
-            case "D":
-                String[] deadlineParts = taskContents.split("\\|", 3);
-                taskStatus = Integer.parseInt(deadlineParts[0].trim());
-                LocalDateTime by = parseDateTime(deadlineParts[2].trim());
-                return new Deadline(deadlineParts[1].trim(), taskStatus, by);
-            case "E":
-                String[] eventParts = taskContents.split("\\|", 4);
-                taskStatus = Integer.parseInt(eventParts[0].trim());
-                LocalDateTime from = parseDateTime(eventParts[2].trim());
-                LocalDateTime to = parseDateTime(eventParts[3].trim());
-                return new Event(eventParts[1].trim(), taskStatus, from, to);
-            default:
-                return null;
-            }
-        } catch (TanjyException e) {
-            throw new RuntimeException(e);
+        switch (typeOfTask) {
+        case "T":
+            String[] todoParts = taskContents.split("\\|", 2);
+            int taskStatus = Integer.parseInt(todoParts[0].trim());
+            return new Todo(todoParts[1].trim(), taskStatus);
+        case "D":
+            String[] deadlineParts = taskContents.split("\\|", 3);
+            taskStatus = Integer.parseInt(deadlineParts[0].trim());
+            LocalDateTime by = parseDateTime(deadlineParts[2].trim());
+            return new Deadline(deadlineParts[1].trim(), taskStatus, by);
+        case "E":
+            String[] eventParts = taskContents.split("\\|", 4);
+            taskStatus = Integer.parseInt(eventParts[0].trim());
+            LocalDateTime from = parseDateTime(eventParts[2].trim());
+            LocalDateTime to = parseDateTime(eventParts[3].trim());
+            return new Event(eventParts[1].trim(), taskStatus, from, to);
+        default:
+            throw new TanjyException("Unknown task type in save file:" + typeOfTask);
         }
     }
 
@@ -102,7 +97,8 @@ public class Parser {
      * @return The same taskList instance after tasks have been added.
      */
 
-    public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
+    public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList)
+            throws TanjyException {
         for (String line : savedList) {
             Task t = lineToTaskParser(line);
             taskList.add(t);
