@@ -13,7 +13,8 @@ import tanjy.task.Task;
  * Handles loading and saving of tasks to a local file.
  */
 public class Storage {
-    private Path filePath;
+    private static final String DIVIDER = "|";
+    private final Path filePath;
     private List<String> savedList = new ArrayList<String>();
 
     /**
@@ -34,7 +35,7 @@ public class Storage {
      *
      * @return True if the file exists, false otherwise.
      */
-    public Boolean doesFileExist() {
+    public boolean doesFileExist() {
         return Files.exists(filePath);
     }
 
@@ -65,13 +66,13 @@ public class Storage {
     public void updateSavedList(ArrayList<Task> taskList) {
         savedList.clear();
         for (Task t : taskList) {
-            String line = t.getTaskType() + "|" + t.getStatus() + "|" + t.getName();
+            String line = t.getTaskType() + DIVIDER + t.getStatus() + DIVIDER + t.getName();
             savedList.add(line);
         }
     }
 
     /**
-     * Saves the updated list onto the "data/Tanjy.txt" file.
+     * Saves the updated list to the storage file at filePath
      *
      * @throws IOException if Files.write(...) does not work.
      */

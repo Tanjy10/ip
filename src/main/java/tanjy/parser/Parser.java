@@ -33,26 +33,30 @@ public class Parser {
     public LocalDateTime parseDateTime(String s) throws TanjyException {
         assert s != null : "Date/Time string should not be null";
         String input = s.trim();
-        DateTimeFormatter[] formatters = {IN_DATETIME, IN_DATE};
 
-        for (DateTimeFormatter formatter : formatters) {
-            try {
-                if (formatter == IN_DATE) {
-                    return LocalDate.parse(input, formatter).atStartOfDay();
-                }
-                return LocalDateTime.parse(input, formatter);
-            } catch (DateTimeParseException e) {
-                // try next formatter
-            }
+        // Try parsing as date-time
+        try {
+            return LocalDateTime.parse(input, IN_DATETIME);
+        } catch (DateTimeParseException ignored) {
+            // try next format
         }
+
+        // Try parsing as date only
+        try {
+            LocalDate date = LocalDate.parse(input, IN_DATE);
+            return date.atStartOfDay();
+        } catch (DateTimeParseException ignored) {
+            // try next format
+        }
+
+        // Try ISO default parser
         try {
             return LocalDateTime.parse(input);
-        } catch (DateTimeParseException e) {
-            throw new TanjyException(
-                    "Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm"
-            );
+        } catch (DateTimeParseException ignored) {
+            throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
         }
     }
+
 
     /**
      * Parses a single saved task line into a Task object.
@@ -61,34 +65,29 @@ public class Parser {
      * @return The parsed Task object, or null if the task type is unknown.
      * @throws TanjyException if the line has missing fields or invalid status.
      */
-    public Task lineToTaskParser(String s) throws RuntimeException {
+    public Task lineToTaskParser(String s) throws TanjyException {
         assert s != null : "Saved task line should not be null";
         String[] lineParts = s.split("\\|", 2);
         String typeOfTask = lineParts[0].trim();
         String taskContents = lineParts.length > 1 ? lineParts[1].trim() : "";
-
-        try {
-            switch (typeOfTask) {
-            case "T":
-                String[] todoParts = taskContents.split("\\|", 2);
-                int taskStatus = Integer.parseInt(todoParts[0].trim());
-                return new Todo(todoParts[1].trim(), taskStatus);
-            case "D":
-                String[] deadlineParts = taskContents.split("\\|", 3);
-                taskStatus = Integer.parseInt(deadlineParts[0].trim());
-                LocalDateTime by = parseDateTime(deadlineParts[2].trim());
-                return new Deadline(deadlineParts[1].trim(), taskStatus, by);
-            case "E":
-                String[] eventParts = taskContents.split("\\|", 4);
-                taskStatus = Integer.parseInt(eventParts[0].trim());
-                LocalDateTime from = parseDateTime(eventParts[2].trim());
-                LocalDateTime to = parseDateTime(eventParts[3].trim());
-                return new Event(eventParts[1].trim(), taskStatus, from, to);
-            default:
-                return null;
-            }
-        } catch (TanjyException e) {
-            throw new RuntimeException(e);
+        switch (typeOfTask) {
+        case "T":
+            String[] todoParts = taskContents.split("\\|", 2);
+            int taskStatus = Integer.parseInt(todoParts[0].trim());
+            return new Todo(todoParts[1].trim(), taskStatus);
+        case "D":
+            String[] deadlineParts = taskContents.split("\\|", 3);
+            taskStatus = Integer.parseInt(deadlineParts[0].trim());
+            LocalDateTime by = parseDateTime(deadlineParts[2].trim());
+            return new Deadline(deadlineParts[1].trim(), taskStatus, by);
+        case "E":
+            String[] eventParts = taskContents.split("\\|", 4);
+            taskStatus = Integer.parseInt(eventParts[0].trim());
+            LocalDateTime from = parseDateTime(eventParts[2].trim());
+            LocalDateTime to = parseDateTime(eventParts[3].trim());
+            return new Event(eventParts[1].trim(), taskStatus, from, to);
+        default:
+            throw new TanjyException("Unknown task type in save file:" + typeOfTask);
         }
     }
 
@@ -100,7 +99,8 @@ public class Parser {
      * @return The same taskList instance after tasks have been added.
      */
 
-    public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList) {
+    public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList)
+            throws TanjyException {
         assert taskList != null : "Tasklist should not be null.";
         assert savedList != null : "Saved list should not be null.";
         for (String line : savedList) {

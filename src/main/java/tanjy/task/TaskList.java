@@ -7,7 +7,9 @@ import java.util.ArrayList;
  * Represents the list of tasks.
  */
 public class TaskList {
-    private ArrayList<Task> list = new ArrayList<>();
+    private static final int STATUS_NOT_DONE = 0;
+    private static final int STATUS_DONE = 1;
+    private final ArrayList<Task> list = new ArrayList<>();
 
     public ArrayList<Task> getTaskList() {
         return list;
@@ -54,7 +56,7 @@ public class TaskList {
      * @param desc The description of the todo task.
      */
     public void addTodo(String desc) {
-        Todo todo = new Todo(desc, 0);
+        Todo todo = new Todo(desc, STATUS_NOT_DONE);
         list.add(todo);
     }
 
@@ -65,7 +67,7 @@ public class TaskList {
      * @param by The date to finish the task by.
      */
     public void addDeadline(String desc, LocalDateTime by) {
-        Deadline deadline = new Deadline(desc, 0, by);
+        Deadline deadline = new Deadline(desc, STATUS_NOT_DONE, by);
         list.add(deadline);
     }
 
@@ -77,7 +79,7 @@ public class TaskList {
      * @param to The end date of the event task.
      */
     public void addEvent(String desc, LocalDateTime from, LocalDateTime to) {
-        Event event = new Event(desc, 0, from, to);
+        Event event = new Event(desc, STATUS_NOT_DONE, from, to);
         list.add(event);
     }
 
