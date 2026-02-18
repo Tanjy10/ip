@@ -13,7 +13,7 @@ import tanjy.task.Task;
  * Handles loading and saving of tasks to a local file.
  */
 public class Storage {
-    private Path filePath;
+    private final Path filePath;
     private List<String> savedList = new ArrayList<String>();
 
     /**

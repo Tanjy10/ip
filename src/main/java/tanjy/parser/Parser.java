@@ -32,26 +32,30 @@ public class Parser {
 
     public LocalDateTime parseDateTime(String s) throws TanjyException {
         String input = s.trim();
-        DateTimeFormatter[] formatters = {IN_DATETIME, IN_DATE};
 
-        for (DateTimeFormatter formatter : formatters) {
-            try {
-                if (formatter == IN_DATE) {
-                    return LocalDate.parse(input, formatter).atStartOfDay();
-                }
-                return LocalDateTime.parse(input, formatter);
-            } catch (DateTimeParseException e) {
-                // try next formatter
-            }
+        // Try parsing as date-time
+        try {
+            return LocalDateTime.parse(input, IN_DATETIME);
+        } catch (DateTimeParseException ignored) {
+            // try next format
         }
+
+        // Try parsing as date only
+        try {
+            LocalDate date = LocalDate.parse(input, IN_DATE);
+            return date.atStartOfDay();
+        } catch (DateTimeParseException ignored) {
+            // try next format
+        }
+
+        // Try ISO default parser
         try {
             return LocalDateTime.parse(input);
-        } catch (DateTimeParseException e) {
-            throw new TanjyException(
-                    "Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm"
-            );
+        } catch (DateTimeParseException ignored) {
+            throw new TanjyException("Invalid date format. Use yyyy-MM-dd or yyyy-MM-dd HHmm");
         }
     }
+
 
     /**
      * Parses a single saved task line into a Task object.
