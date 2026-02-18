@@ -3,6 +3,8 @@ package tanjy.task;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
+import tanjy.exception.TanjyException;
+
 /**
  * Represents the list of tasks.
  */
@@ -109,5 +111,46 @@ public class TaskList {
         }
         return matches;
     }
+
+    public void snoozeDeadline(int index, LocalDateTime newBy) throws TanjyException {
+        Task task = list.get(index);
+        if (!task.getTaskType().equals("D")) {
+            throw new TanjyException("You can only snooze a Deadline with /by.");
+        }
+
+        Deadline d = (Deadline) task;
+        LocalDateTime oldBy = d.getBy();
+
+        if (!newBy.isAfter(oldBy)) {
+            throw new TanjyException("Snooze time must be later than the current deadline time.");
+        }
+
+        d.setBy(newBy);
+    }
+
+
+    public void snoozeEvent(int index, LocalDateTime newFrom, LocalDateTime newTo) throws TanjyException {
+        Task task = list.get(index);
+        if (!task.getTaskType().equals("E")) {
+            throw new TanjyException("You can only snooze an Event with /from ... /to ...");
+        }
+
+        if (!newFrom.isBefore(newTo)) {
+            throw new TanjyException("Event start time must be before end time.");
+        }
+
+        Event e = (Event) task;
+        LocalDateTime oldFrom = e.getFrom();
+        LocalDateTime oldTo = e.getTo();
+
+        if (!newFrom.isAfter(oldFrom) || !newTo.isAfter(oldTo)) {
+            throw new TanjyException("Snooze time must be later than the current event time.");
+        }
+
+        e.setFrom(newFrom);
+        e.setTo(newTo);
+    }
+
+
 
 }

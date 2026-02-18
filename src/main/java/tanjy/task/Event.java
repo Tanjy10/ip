@@ -27,6 +27,22 @@ public class Event extends Task {
         setTaskType("E");
     }
 
+    public LocalDateTime getFrom() {
+        return this.from;
+    }
+
+    public void setFrom(LocalDateTime newFrom) {
+        this.from = newFrom;
+    }
+
+    public LocalDateTime getTo() {
+        return this.to;
+    }
+
+    public void setTo(LocalDateTime newTo) {
+        this.to = newTo;
+    }
+
     @Override
     public String getName() {
         return super.getName() + "|" + from.toString() + "|" + to.toString();
