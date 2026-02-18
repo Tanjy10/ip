@@ -23,6 +23,14 @@ public class Deadline extends Task {
         setTaskType("D");
     }
 
+    public LocalDateTime getBy() {
+        return this.by;
+    }
+
+    public void setBy(LocalDateTime newBy) {
+        this.by = newBy;
+    }
+
     @Override
     public String getName() {
         return super.getName() + "|" + by.toString();

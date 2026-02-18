@@ -1,7 +1,7 @@
 package tanjy.parser;
 
 public enum CommandType {
-    BYE, LIST, MARK, UNMARK, TODO, DEADLINE, EVENT, DELETE, SAVE, FIND, UNKNOWN;
+    BYE, LIST, MARK, UNMARK, TODO, DEADLINE, EVENT, DELETE, SAVE, FIND, UNKNOWN, SNOOZE;
 
     public static CommandType from(String input) {
         try {

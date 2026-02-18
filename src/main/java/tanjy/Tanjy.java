@@ -132,6 +132,9 @@ public class Tanjy {
             case FIND:
                 return handleFind(remainder);
 
+            case SNOOZE:
+                return handleSnooze(remainder);
+
             default:
                 throw new TanjyException("Huh? No such command. Enter something else!");
             }
@@ -246,6 +249,58 @@ public class Tanjy {
         }
         ArrayList<Task> matches = taskList.findTasks(remainder);
         return formatMatchingTasks(matches);
+    }
+
+    private String handleSnooze(String remainder) throws TanjyException {
+        if (remainder.isBlank()) {
+            throw new TanjyException("Usage: snooze <index> /by <date> OR snooze <index> /from <start> /to <end>");
+        }
+
+        String[] parts = remainder.split("\\s+", 2);
+        if (!parts[0].matches("\\d+")) {
+            throw new TanjyException("That's not a number :((");
+        }
+
+        int inputNumber = Integer.parseInt(parts[0]);
+        if (inputNumber <= 0 || inputNumber > taskList.size()) {
+            throw new TanjyException("Invalid index! Enter another number, or add a task!");
+        }
+        int index = inputNumber - 1;
+
+        String args = parts.length > 1 ? parts[1].trim() : "";
+        if (args.isBlank()) {
+            throw new TanjyException("You need to specify a new time using /by or /from ... /to ...");
+        }
+
+        // Deadline-style snooze: reuse your existing parseDateTime + TOKEN_BY logic
+        if (args.contains(TOKEN_BY)) { // "/by"
+            String[] details = args.split(TOKEN_BY, 2);
+            if (details.length == 1 || details[1].isBlank()) {
+                throw new TanjyException("You need to provide a date after '/by'!");
+            }
+            LocalDateTime newBy = parser.parseDateTime(details[1].trim());
+            taskList.snoozeDeadline(index, newBy);
+            return "Ok! I've snoozed that deadline.\n" + taskList.getTask(index) + "\n";
+        }
+
+        if (args.contains(TOKEN_FROM)) {
+            String[] details = args.split(TOKEN_FROM, 2);
+            if (details.length == 1 || details[1].isBlank()) {
+                throw new TanjyException("You need to set a start date by adding '/from'!");
+            }
+            String[] timeRange = details[1].split(TOKEN_TO, 2);
+            if (timeRange.length == 1 || timeRange[1].isBlank()) {
+                throw new TanjyException("You need to set an end date by adding '/to' after '/from'!");
+            }
+
+            LocalDateTime newFrom = parser.parseDateTime(timeRange[0].trim());
+            LocalDateTime newTo = parser.parseDateTime(timeRange[1].trim());
+            taskList.snoozeEvent(index, newFrom, newTo);
+
+            return "Ok! I've snoozed that event.\n" + taskList.getTask(index) + "\n";
+        }
+
+        throw new TanjyException("Usage: snooze <index> /by <date> OR snooze <index> /from <start> /to <end>");
     }
 
 
