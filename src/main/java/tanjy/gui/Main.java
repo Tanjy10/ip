@@ -28,6 +28,7 @@ public class Main extends Application {
             Scene scene = new Scene(ap);
             stage.setScene(scene);
 
+            stage.setTitle("Tanjy chatbot");
             fxmlLoader.<Gui>getController().setTanjy(tanjy);
             stage.show();
         } catch (IOException e) {
