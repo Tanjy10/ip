@@ -114,7 +114,7 @@ public class TaskList {
 
     public void snoozeDeadline(int index, LocalDateTime newBy) throws TanjyException {
         Task task = list.get(index);
-        if (!task.getTaskType().equals("D")) {
+        if (!(task instanceof Deadline)) {
             throw new TanjyException("You can only snooze a Deadline with /by.");
         }
 
@@ -131,7 +131,7 @@ public class TaskList {
 
     public void snoozeEvent(int index, LocalDateTime newFrom, LocalDateTime newTo) throws TanjyException {
         Task task = list.get(index);
-        if (!task.getTaskType().equals("E")) {
+        if (!(task instanceof Event)) {
             throw new TanjyException("You can only snooze an Event with /from ... /to ...");
         }
 

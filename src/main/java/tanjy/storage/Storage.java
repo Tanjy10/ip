@@ -55,6 +55,7 @@ public class Storage {
      * @throws IOException if the storage file cannot be created.
      */
     public void createNewFile() throws IOException {
+        Files.createDirectories(filePath.getParent());
         Files.createFile(filePath);
     }
 

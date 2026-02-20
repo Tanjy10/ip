@@ -54,12 +54,11 @@ public class Ui {
     }
 
     public String getListMessage(ArrayList<Task> list) {
-        String curr = "Here are the task(s) in your list:\n";
+        StringBuilder sb = new StringBuilder("Here are the task(s) in your list:\n");
         for (int i = 0; i < list.size(); i++) {
-            curr += (i + 1) + ".";
-            curr += list.get(i).toString() + "\n";
+            sb.append(i + 1).append(".").append(list.get(i)).append("\n");
         }
-        return curr;
+        return sb.toString();
     }
 
     public String getAddSuccessMessage(Task t, int total) {

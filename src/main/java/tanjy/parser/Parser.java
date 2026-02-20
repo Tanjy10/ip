@@ -99,7 +99,7 @@ public class Parser {
      * @return The same taskList instance after tasks have been added.
      */
 
-    public ArrayList<Task> stringListToTaskList(ArrayList<Task> taskList, List<String> savedList)
+    public void stringListToTaskList(ArrayList<Task> taskList, List<String> savedList)
             throws TanjyException {
         assert taskList != null : "Tasklist should not be null.";
         assert savedList != null : "Saved list should not be null.";
@@ -107,7 +107,6 @@ public class Parser {
             Task t = lineToTaskParser(line);
             taskList.add(t);
         }
-        return taskList;
     }
 
 }
