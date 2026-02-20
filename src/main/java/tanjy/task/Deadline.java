@@ -40,7 +40,7 @@ public class Deadline extends Task {
     public String toString() {
         boolean hasTime = !(by.getHour() == 0 && by.getMinute() == 0);
         String date;
-        if (!hasTime) {
+        if (hasTime) {
             date = by.format(dateAndTime);
         } else {
             date = by.format(dateOnly);

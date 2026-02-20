@@ -32,6 +32,7 @@ public class Tanjy {
     private final Storage storage;
     private final Parser parser;
     private final TaskList taskList;
+
     /**
      * Constructs the chatbot with the specified filePath.
      *
@@ -45,6 +46,7 @@ public class Tanjy {
         welcomeMessage = ui.getIntro();
         initFromStorage();
     }
+
     /**
      * Runs the chatbot.
      */
@@ -143,7 +145,16 @@ public class Tanjy {
     }
 
     private String handleMark(String remainder, boolean isMark) throws TanjyException {
-        int inputNumber = parseTaskIndex1Based(remainder);
+        if (remainder.isBlank()) {
+            throw new TanjyException("You did not indicate which task to mark/unmark!");
+        }
+        if (!remainder.matches("\\d+")) {
+            throw new TanjyException("That's not a number :((");
+        }
+        int inputNumber = Integer.parseInt(remainder);
+        if (inputNumber <= 0 || inputNumber > taskList.size()) {
+            throw new TanjyException("Invalid index! Enter another number, or add a Task!");
+        }
         int index = inputNumber - 1;
         if (isMark) {
             taskList.markTask(index);
@@ -194,7 +205,16 @@ public class Tanjy {
     }
 
     private String handleDelete(String remainder) throws TanjyException {
-        int inputNumber = parseTaskIndex1Based(remainder);
+        if (remainder.isBlank()) {
+            throw new TanjyException("You did not indicate which task to delete!");
+        }
+        if (!remainder.matches("\\d+")) {
+            throw new TanjyException("That's not a number :((");
+        }
+        int inputNumber = Integer.parseInt(remainder);
+        if (inputNumber <= 0 || inputNumber > taskList.size()) {
+            throw new TanjyException("Invalid index! Enter another number, or add a Task!");
+        }
         int index = inputNumber - 1;
         Task deleted = taskList.getTask(index);
         taskList.delete(index);
@@ -210,6 +230,7 @@ public class Tanjy {
             return ui.getSaveFailMessage();
         }
     }
+
     private String formatMatchingTasks(ArrayList<Task> matches) {
         StringBuilder sb = new StringBuilder();
         sb.append("Here are the matching tasks in your list:\n");
@@ -232,13 +253,22 @@ public class Tanjy {
             throw new TanjyException("Usage: snooze <index> /by <date> OR snooze <index> /from <start> /to <end>");
         }
 
-        int inputNumber = parseTaskIndex1Based(remainder);
-        int index = inputNumber - 1;
         String[] parts = remainder.split("\\s+", 2);
+        if (!parts[0].matches("\\d+")) {
+            throw new TanjyException("That's not a number :((");
+        }
+
+        int inputNumber = Integer.parseInt(parts[0]);
+        if (inputNumber <= 0 || inputNumber > taskList.size()) {
+            throw new TanjyException("Invalid index! Enter another number, or add a task!");
+        }
+        int index = inputNumber - 1;
+
         String args = parts.length > 1 ? parts[1].trim() : "";
         if (args.isBlank()) {
             throw new TanjyException("You need to specify a new time using /by or /from ... /to ...");
         }
+
         if (args.contains(TOKEN_BY)) {
             String[] details = args.split(TOKEN_BY, 2);
             if (details.length == 1 || details[1].isBlank()) {
@@ -268,22 +298,6 @@ public class Tanjy {
 
         throw new TanjyException("Usage: snooze <index> /by <date> OR snooze <index> /from <start> /to <end>");
     }
-
-    private int parseTaskIndex1Based(String s) throws TanjyException {
-        if (s.isBlank()) {
-            throw new TanjyException("You did not indicate which task!");
-        }
-        if (!s.matches("\\d+")) {
-            throw new TanjyException("That's not a number :((");
-        }
-        int n = Integer.parseInt(s);
-        if (n <= 0 || n > taskList.size()) {
-            throw new TanjyException("Invalid index! Enter another number, or add a task!");
-        }
-        return n - 1;
-    }
-
-
 
     /**
      * Entry point of the chatbot.
