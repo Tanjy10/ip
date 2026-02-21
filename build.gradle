@@ -43,7 +43,7 @@ test {
 }
 
 application {
-    mainClass.set("tanjy.gui.Main")
+    mainClass.set("tanjy.gui.Launcher")
 }
 
 shadowJar {
