@@ -1,6 +1,6 @@
 # Tanjy User Guide
 
-![Ui.png](/Ui.png)
+![Ui.png](ip/Ui.png)
 
 Tanjy is a Duke-style chatbot designed to manage tasks,
 deadlines, events, and more.
